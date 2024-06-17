@@ -18,6 +18,8 @@ from cog import BaseModel, Input, Path
 import subprocess as sp
 from tqdm import tqdm
 
+from typing import Literal
+
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 from essentia.standard import (
@@ -311,17 +313,17 @@ def prepare_data(
     return max_sample_rate, filelen
 
 def train(
-        dataset_path: Path = Input("Path to dataset directory. Input audio files will be chunked into multiple 30 second audio files. Must be one of 'tar', 'tar.gz', 'gz', 'zip' types of compressed file, or a single 'wav', 'mp3', 'flac' file. Audio files must be longer than 5 seconds.",),
+        dataset_path: Path = Input("Path to dataset directory. Input audio files will be chunked into multiple 30 second audio files. Must be one of 'tar', 'tar.gz', 'gz', 'zip' types of compressed file, or a single 'wav', 'mp3', 'flac' file. Audio files must be longer than 5 seconds."),
         auto_labeling: bool = Input(description="Creating label data like genre, mood, theme, instrumentation, key, bpm for each track. Using `essentia-tensorflow` for music information retrieval.", default=True),
         drop_vocals: bool = Input(description="Dropping the vocal tracks from the audio files in dataset, by separating sources with Demucs.", default=True),
         one_same_description: str = Input(description="A description for all of audio data", default=None),
-        model_version: str = Input(description="Model version to train.", default="stereo-melody", choices=["stereo-melody", "stereo-small", "stereo-medium", "melody", "small", "medium"]),
+        model_version: Literal["stereo-melody", "stereo-small", "stereo-medium", "melody", "small", "medium"] = Input(description="Model version to train.", default="stereo-melody"),
         epochs: int = Input(description="Number of epochs to train for", default=3),
         updates_per_epoch: int = Input(description="Number of iterations for one epoch", default=100),
         batch_size: int = Input(description="Batch size. Must be multiple of 8(number of gpus), for 8-gpu training.", default=16),
-        optimizer: str = Input(description="Type of optimizer.", default='dadam', choices=["dadam", "adamw"]),
+        optimizer: Literal["dadam", "adamw"] = Input(description="Type of optimizer.", default='dadam'),
         lr: float = Input(description="Learning rate", default=1),
-        lr_scheduler: str = Input(description="Type of lr_scheduler", default="cosine", choices=["exponential", "cosine", "polynomial_decay", "inverse_sqrt", "linear_warmup"]),
+        lr_scheduler: Literal["exponential", "cosine", "polynomial_decay", "inverse_sqrt", "linear_warmup"] = Input(description="Type of lr_scheduler", default="cosine"),
         warmup: int = Input(description="Warmup of lr_scheduler", default=8),
         cfg_p: float = Input(description="CFG dropout ratio", default=0.3),
 ) -> TrainingOutput:
