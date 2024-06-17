@@ -26,7 +26,7 @@ build:
   # a list of packages in the format <package-name>==<version>
   python_packages:
     - "demucs"
-    - "torch==2.3.0"
+    - "torch==2.1.0"
     - "av"
     - "einops"
     - flashy>=0.0.1
