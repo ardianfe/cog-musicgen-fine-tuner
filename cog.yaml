@@ -57,7 +57,7 @@ build:
 
   # commands run after the environment is setup
   run:
-    - pip install dora
+    - python3 -m pip install dora
     - python3 -m pip install -U git+https://github.com/facebookresearch/demucs#egg=demucs
   
 # predict.py defines how predictions are run on your model
