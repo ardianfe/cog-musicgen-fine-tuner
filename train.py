@@ -380,6 +380,7 @@ def train(
         print(f"Batch size is reset to {batch_size}, the multiple of 8(number of gpus).")
 
     # Setting up dora args
+    logging.info("Setting up dora args")
     if model_version not in ["melody", "stereo-melody"]:
         solver = "musicgen/musicgen_base_32khz"
         if "stereo" in model_version:
@@ -425,6 +426,9 @@ def train(
         args.append(f"optim.updates_per_epoch={updates_per_epoch}")
 
     sp.call(["dora"]+args)
+
+    checkpoint_dir = None
+    logging.info("Looking for checkpoint")
 
     for dirpath, dirnames, filenames in os.walk("tmp"):
         for filename in [f for f in filenames if f == "checkpoint.th"]:
