@@ -317,16 +317,28 @@ def train(
         auto_labeling: bool = Input(description="Creating label data like genre, mood, theme, instrumentation, key, bpm for each track. Using `essentia-tensorflow` for music information retrieval.", default=True),
         drop_vocals: bool = Input(description="Dropping the vocal tracks from the audio files in dataset, by separating sources with Demucs.", default=True),
         one_same_description: str = Input(description="A description for all of audio data", default=None),
-        model_version: Literal["stereo-melody", "stereo-small", "stereo-medium", "melody", "small", "medium"] = Input(description="Model version to train.", default="stereo-melody"),
+        model_version: str = Input(description="Model version to train.", default="stereo-melody"),
         epochs: int = Input(description="Number of epochs to train for", default=3),
         updates_per_epoch: int = Input(description="Number of iterations for one epoch", default=100),
         batch_size: int = Input(description="Batch size. Must be multiple of 8(number of gpus), for 8-gpu training.", default=16),
-        optimizer: Literal["dadam", "adamw"] = Input(description="Type of optimizer.", default='dadam'),
+        optimizer: str = Input(description="Type of optimizer.", default='dadam'),
         lr: float = Input(description="Learning rate", default=1),
-        lr_scheduler: Literal["exponential", "cosine", "polynomial_decay", "inverse_sqrt", "linear_warmup"] = Input(description="Type of lr_scheduler", default="cosine"),
+        lr_scheduler: str = Input(description="Type of lr_scheduler", default="cosine"),
         warmup: int = Input(description="Warmup of lr_scheduler", default=8),
         cfg_p: float = Input(description="CFG dropout ratio", default=0.3),
 ) -> TrainingOutput:
+    
+    # Validate choices manually
+    model_versions = ["stereo-melody", "stereo-small", "stereo-medium", "melody", "small", "medium"]
+    optimizers = ["dadam", "adamw"]
+    lr_schedulers = ["exponential", "cosine", "polynomial_decay", "inverse_sqrt", "linear_warmup"]
+    
+    if model_version not in model_versions:
+        raise ValueError(f"Invalid model_version: {model_version}. Must be one of {model_versions}")
+    if optimizer not in optimizers:
+        raise ValueError(f"Invalid optimizer: {optimizer}. Must be one of {optimizers}")
+    if lr_scheduler not in lr_schedulers:
+        raise ValueError(f"Invalid lr_scheduler: {lr_scheduler}. Must be one of {lr_schedulers}")
     meta_path = 'src/meta'
     target_path = 'src/train_data'
 
