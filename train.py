@@ -211,7 +211,7 @@ def prepare_data(
                 # Obtaining key and BPM
                 y, sr = librosa.load(str(filename))
                 tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-                tempo = round(tempo)
+                tempo = float(np.round(tempo))
                 chroma = librosa.feature.chroma_stft(y=y, sr=sr)
                 key = np.argmax(np.sum(chroma, axis=1))
                 key = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][key]
