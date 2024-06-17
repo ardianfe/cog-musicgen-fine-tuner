@@ -26,7 +26,7 @@ build:
   # a list of packages in the format <package-name>==<version>
   python_packages:
     - "demucs"
-    - "torch==2.1.0"
+    - "torch==2.3.0+cu121"
     - "av"
     - "einops"
     - flashy>=0.0.1
@@ -41,7 +41,7 @@ build:
     - "huggingface_hub"
     - "tqdm"
     - "transformers>=4.31.0"
-    - "xformers"
+    - "xformers --index-url https://download.pytorch.org/whl/cu121"
     - "demucs"
     - "librosa"
     - "gradio"
@@ -57,7 +57,6 @@ build:
   # commands run after the environment is setup
   run:
     - python3 -m pip install -U git+https://github.com/facebookresearch/demucs#egg=demucs
-    - python -m pip install -U git+https://git@github.com/facebookresearch/audiocraft#egg=audiocraft
     - python3 -m pip install git+https://github.com/facebookresearch/dora.git
 
 # predict.py defines how predictions are run on your model
