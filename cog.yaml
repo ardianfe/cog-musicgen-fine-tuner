@@ -57,9 +57,7 @@ build:
   # commands run after the environment is setup
   run:
     - python3 -m pip install -U git+https://github.com/facebookresearch/demucs#egg=demucs
-    - git clone https://github.com/facebookresearch/dora.git
-    - cd dora
-    - pip install .
+    - python3 -m pip install git+https://github.com/facebookresearch/dora.git
 
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"
