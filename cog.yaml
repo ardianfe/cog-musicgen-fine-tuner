@@ -18,8 +18,7 @@ build:
     - libchromaprint-dev
     - numactl
     - sox
-    # - "libgl1-mesa-glx"
-    # - "libglib2.0-0"
+    - git
 
   # python version in the form '3.8' or '3.8.12'
   python_version: "3.9"
@@ -58,7 +57,10 @@ build:
   # commands run after the environment is setup
   run:
     - python3 -m pip install -U git+https://github.com/facebookresearch/demucs#egg=demucs
-    - pip install dora
+    - |
+      git clone https://github.com/facebookresearch/dora.git
+      cd dora
+      pip install .
 
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"
