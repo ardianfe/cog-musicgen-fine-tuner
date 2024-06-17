@@ -41,7 +41,7 @@ build:
     - "huggingface_hub"
     - "tqdm"
     - "transformers>=4.31.0"
-    - "xformers==0.0.22.post7 --index-url https://download.pytorch.org/whl/cu121"
+    - "xformers"
     - "demucs"
     - "librosa"
     - "gradio"
@@ -57,6 +57,7 @@ build:
   # commands run after the environment is setup
   run:
     - python3 -m pip install -U git+https://github.com/facebookresearch/demucs#egg=demucs
+    - python -m pip install -U git+https://git@github.com/facebookresearch/audiocraft#egg=audiocraft
     - python3 -m pip install git+https://github.com/facebookresearch/dora.git
 
 # predict.py defines how predictions are run on your model
