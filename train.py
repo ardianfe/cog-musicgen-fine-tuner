@@ -392,8 +392,8 @@ def train(
         solver = "musicgen/musicgen_melody_32khz"
         model_scale = "medium"
         conditioner = "chroma2music"
-    # continue_from = f"//pretrained/facebook/musicgen-{model_version}"
-    continue_from = "/src/tmp/audiocraft/xps/48c4b89a/checkpoint.th"
+    continue_from = f"//pretrained/facebook/musicgen-{model_version}"
+    #continue_from = "/src/tmp/audiocraft/xps/48c4b89a/checkpoint.th"
 
     args = ["run", "-d", "--", f"solver={solver}", f"model/lm/model_scale={model_scale}", f"continue_from={continue_from}", f"conditioner={conditioner}"]
     if "stereo" in model_version:
