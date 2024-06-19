@@ -12,6 +12,7 @@ See more info on how to use dora: https://github.com/facebookresearch/dora
 import logging
 import os
 import os.path
+import shutil
 
 import subprocess
 from cog import BaseModel, Input, Path
