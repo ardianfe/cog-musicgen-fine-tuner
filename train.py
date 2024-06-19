@@ -456,7 +456,7 @@ def train(
         lr_scheduler: str = Input(description="Type of lr_scheduler", default="cosine"),
         warmup: int = Input(description="Warmup of lr_scheduler", default=8),
         cfg_p: float = Input(description="CFG dropout ratio", default=0.3),
-        checkpoint_path: str = Input(description="Path to checkpoint file to continue training from", default=None)
+        checkpoint_folder: str = Input(description="Name of the folder containing checkpoint to continue training from", default=None)
 ) -> TrainingOutput:
     # Validate choices manually
     model_versions = ["stereo-melody", "stereo-small", "stereo-medium", "melody", "small", "medium"]
@@ -506,12 +506,9 @@ def train(
         model_scale = "medium"
         conditioner = "chroma2music"
 
-    if checkpoint_path:
-        continue_from = checkpoint_path
-    else:
-        continue_from = f"//pretrained/facebook/musicgen-{model_version}"
+    continue_from = f"//pretrained/facebook/musicgen-{model_version}"
 
-    args = ["run", "-d", "--", f"solver={solver}", f"model/lm/model_scale={model_scale}", f"continue_from={continue_from}", f"conditioner={conditioner}"]
+    args = ["run", "-d", "-f", checkpoint_folder, "--", f"solver={solver}", f"model/lm/model_scale={model_scale}", f"continue_from={continue_from}", f"conditioner={conditioner}"]
     if "stereo" in model_version:
         args.extend([
             f"codebooks_pattern.delay.delays={[0, 0, 1, 1, 2, 2, 3, 3]}",
@@ -557,7 +554,7 @@ def train(
     # Find and load the checkpoint
     logging.info("Looking for checkpoint")
     checkpoint_dir = None
-    for dirpath, _, filenames in os.walk("tmp"):
+    for dirpath, _, filenames in os.walk(f"tmp/{checkpoint_folder}"):
         for filename in [f for f in filenames if f == "checkpoint.th"]:
             checkpoint_dir = os.path.join(dirpath, filename)
 
