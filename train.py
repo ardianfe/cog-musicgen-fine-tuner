@@ -507,8 +507,9 @@ def train(
         conditioner = "chroma2music"
 
     continue_from = f"//pretrained/facebook/musicgen-{model_version}"
+    # continue_from = f"//sig/SIG"
 
-    args = ["run", "-d", "-f", checkpoint_folder, "--", f"solver={solver}", f"model/lm/model_scale={model_scale}", f"continue_from={continue_from}", f"conditioner={conditioner}"]
+    args = ["run", "-d", "--", f"solver={solver}", f"model/lm/model_scale={model_scale}", f"continue_from={continue_from}", f"conditioner={conditioner}"]
     if "stereo" in model_version:
         args.extend([
             f"codebooks_pattern.delay.delays={[0, 0, 1, 1, 2, 2, 3, 3]}",
