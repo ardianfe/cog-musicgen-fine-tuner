@@ -7,6 +7,7 @@
 """
 Entry point for dora to launch solvers for running training loops.
 See more info on how to use dora: https://github.com/facebookresearch/dora
+Test untuk mulai dari awal
 """
 
 import logging
@@ -313,134 +314,6 @@ def prepare_data(
 
     return max_sample_rate, filelen
 
-# def train(
-#         dataset_path: Path = Input("Path to dataset directory. Input audio files will be chunked into multiple 30 second audio files. Must be one of 'tar', 'tar.gz', 'gz', 'zip' types of compressed file, or a single 'wav', 'mp3', 'flac' file. Audio files must be longer than 5 seconds."),
-#         auto_labeling: bool = Input(description="Creating label data like genre, mood, theme, instrumentation, key, bpm for each track. Using `essentia-tensorflow` for music information retrieval.", default=True),
-#         drop_vocals: bool = Input(description="Dropping the vocal tracks from the audio files in dataset, by separating sources with Demucs.", default=True),
-#         one_same_description: str = Input(description="A description for all of audio data", default=None),
-#         model_version: str = Input(description="Model version to train.", default="stereo-melody"),
-#         epochs: int = Input(description="Number of epochs to train for", default=3),
-#         updates_per_epoch: int = Input(description="Number of iterations for one epoch", default=100),
-#         batch_size: int = Input(description="Batch size. Must be multiple of 8(number of gpus), for 8-gpu training.", default=16),
-#         optimizer: str = Input(description="Type of optimizer.", default='dadam'),
-#         lr: float = Input(description="Learning rate", default=1),
-#         lr_scheduler: str = Input(description="Type of lr_scheduler", default="cosine"),
-#         warmup: int = Input(description="Warmup of lr_scheduler", default=8),
-#         cfg_p: float = Input(description="CFG dropout ratio", default=0.3),
-# ) -> TrainingOutput:
-    
-#     # Validate choices manually
-#     model_versions = ["stereo-melody", "stereo-small", "stereo-medium", "melody", "small", "medium"]
-#     optimizers = ["dadam", "adamw"]
-#     lr_schedulers = ["exponential", "cosine", "polynomial_decay", "inverse_sqrt", "linear_warmup"]
-    
-#     if model_version not in model_versions:
-#         raise ValueError(f"Invalid model_version: {model_version}. Must be one of {model_versions}")
-#     if optimizer not in optimizers:
-#         raise ValueError(f"Invalid optimizer: {optimizer}. Must be one of {optimizers}")
-#     if lr_scheduler not in lr_schedulers:
-#         raise ValueError(f"Invalid lr_scheduler: {lr_scheduler}. Must be one of {lr_schedulers}")
-#     meta_path = 'src/meta'
-#     target_path = 'src/train_data'
-
-#     out_path = "trained_model.tar"
-
-#     # Removing previous training's leftover
-#     if os.path.isfile(out_path):
-#         os.remove(out_path)
-#     if os.path.isfile('weights'):
-#         os.remove('weights')
-#     if os.path.isfile('weight'):
-#         os.remove('weight')
-#     import shutil
-#     if os.path.isdir('weights'):
-#         shutil.rmtree('weights')
-#     if os.path.isdir('weight'):
-#         shutil.rmtree('weight')
-#     if os.path.isdir(meta_path):
-#         shutil.rmtree(meta_path)
-#     if os.path.isdir(target_path):
-#         shutil.rmtree(target_path)
-#     if os.path.isdir('models'):
-#         shutil.rmtree('models')
-#     if os.path.isdir('tmp'):
-#         shutil.rmtree('tmp')
-
-#     if "stereo" in model_version:
-#         channels = 2
-#     else:
-#         channels = 1
-#     max_sample_rate, len_dataset = prepare_data(dataset_path, target_path, one_same_description, meta_path, auto_labeling, drop_vocals, 'cuda', channels)
-
-#     if model_version in ["melody", "stereo-melody", "medium", "stereo-medium"]:
-#         batch_size = 8
-#         print(f"Batch size is reset to {batch_size}, since `medium(melody)` model can only be trained with 8 with current GPU settings.")
-
-#     if batch_size % 8 != 0:
-#         batch_size = batch_size - (batch_size%8)
-#         print(f"Batch size is reset to {batch_size}, the multiple of 8(number of gpus).")
-
-#     # Setting up dora args
-#     logging.info("Setting up dora args")
-#     if model_version not in ["melody", "stereo-melody"]:
-#         solver = "musicgen/musicgen_base_32khz"
-#         if "stereo" in model_version:
-#             model_scale = model_version.rsplit('-')[-1]
-#         else:
-#             model_scale = model_version
-#         conditioner = "text2music"
-#     else:
-#         solver = "musicgen/musicgen_melody_32khz"
-#         model_scale = "medium"
-#         conditioner = "chroma2music"
-#     continue_from = f"//pretrained/facebook/musicgen-{model_version}"
-#     # continue_from = "/src/tmp/audiocraft/xps/48c4b89a/checkpoint.th"
-
-#     args = ["run", "-d", "--", f"solver={solver}", f"model/lm/model_scale={model_scale}", f"continue_from={continue_from}", f"conditioner={conditioner}"]
-#     if "stereo" in model_version:
-#         args.append(f"codebooks_pattern.delay.delays={[0, 0, 1, 1, 2, 2, 3, 3]}")
-#         args.append('transformer_lm.n_q=8')
-#         args.append('interleave_stereo_codebooks.use=True')
-#         args.append('channels=2')
-#     args.append(f"datasource.max_sample_rate={max_sample_rate}")
-#     args.append(f"datasource.train={meta_path}")
-#     args.append(f"dataset.train.num_samples={len_dataset}")
-#     args.append(f"optim.epochs={epochs}")
-#     args.append(f"optim.lr={lr}")
-#     args.append(f"schedule.lr_scheduler={lr_scheduler}")
-#     args.append(f"schedule.cosine.warmup={warmup}")
-#     args.append(f"schedule.polynomial_decay.warmup={warmup}")
-#     args.append(f"schedule.inverse_sqrt.warmup={warmup}")
-#     args.append(f"schedule.linear_warmup.warmup={warmup}")
-#     args.append(f"classifier_free_guidance.training_dropout={cfg_p}")
-#     if updates_per_epoch is not None:
-#         args.append(f"logging.log_updates={updates_per_epoch//10 if updates_per_epoch//10 >=1 else 1}")
-#     else:
-#         args.append(f"logging.log_updates=0")
-#     args.append(f"dataset.batch_size={batch_size}")
-#     args.append(f"optim.optimizer={optimizer}")
-
-#     if updates_per_epoch is None:
-#         args.append("dataset.train.permutation_on_files=False")
-#         args.append("optim.updates_per_epoch=1")
-#     else:
-#         args.append("dataset.train.permutation_on_files=True")
-#         args.append(f"optim.updates_per_epoch={updates_per_epoch}")
-
-#     sp.call(["dora"]+args)
-
-#     checkpoint_dir = None
-#     logging.info("Looking for checkpoint")
-
-#     for dirpath, dirnames, filenames in os.walk("tmp"):
-#         for filename in [f for f in filenames if f == "checkpoint.th"]:
-#             checkpoint_dir = os.path.join(dirpath, filename)
-
-#     loaded = torch.load(checkpoint_dir, map_location=torch.device('cpu'))
-
-#     torch.save({'xp.cfg': loaded["xp.cfg"], "model": loaded["model"]}, out_path)
-
-#     return TrainingOutput(weights=Path(out_path))
 
 def train(
         dataset_path: Path = Input("Path to dataset directory. Input audio files will be chunked into multiple 30 second audio files. Must be one of 'tar', 'tar.gz', 'gz', 'zip' types of compressed file, or a single 'wav', 'mp3', 'flac' file. Audio files must be longer than 5 seconds."),
